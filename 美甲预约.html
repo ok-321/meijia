@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lisha日式美甲 · 预约日历</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #FFF8EC;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            color: #5a4633;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            background: white;
+            border-radius: 36px;
+            padding: 28px 22px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+            border: 1px solid #ffdec2;
+        }
+
+        /* 头部 */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            width: 52px;
+            height: 52px;
+            background: #FFB347;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+            box-shadow: 0 6px 14px rgba(255, 179, 71, 0.35);
+        }
+
+        .shop-name {
+            font-size: 26px;
+            font-weight: 700;
+            color: #e1772c;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #bfa68b;
+            margin-top: 2px;
+        }
+
+        /* 日历导航 */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .month-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #b66d39;
+        }
+
+        .nav-buttons button {
+            background: #fff5e9;
+            border: 1px solid #ffdeb3;
+            color: #cf8a4a;
+            font-size: 18px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 6px;
+        }
+
+        .nav-buttons button:hover {
+            background: #ffe4c4;
+        }
+
+        /* 日历表格 */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            background: #fffaf2;
+            border-radius: 20px;
+            padding: 10px;
+            border: 1px solid #ffebcc;
+        }
+
+        .day-header {
+            font-weight: 600;
+            color: #c99564;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+
+        .day-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            margin: 2px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .day-cell:hover {
+            background: #fff0dc;
+        }
+
+        .day-cell.other-month {
+            color: #d6c5b3;
+            cursor: default;
+            opacity: 0.5;
+        }
+
+        .day-cell.today {
+            background: #ffe9ce;
+            font-weight: 700;
+        }
+
+        .day-cell.selected {
+            background: #FFB347;
+            color: white;
+            font-weight: 700;
+        }
+
+        .day-cell.selected .dot {
+            background: white;
+        }
+
+        .day-number {
+            font-size: 16px;
+            z-index: 1;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: #FF9F1C;
+            border-radius: 50%;
+            margin-top: 2px;
+            z-index: 1;
+        }
+
+        .day-cell.selected .dot {
+            background: white;
+        }
+
+        /* 日期详情卡片 */
+        .day-detail {
+            margin-top: 20px;
+            background: #fffaf2;
+            border-radius: 24px;
+            padding: 16px;
+            border: 1px solid #ffebcc;
+            display: none;
+        }
+
+        .day-detail.active {
+            display: block;
+        }
+
+        .day-detail h3 {
+            font-size: 17px;
+            color: #b86b29;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .booking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px dashed #ffe8cf;
+        }
+
+        .booking-item:last-child {
+            border-bottom: none;
+        }
+
+        .booking-info-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .customer-name {
+            font-weight: 700;
+            color: #5c3d24;
+        }
+
+        .booking-meta {
+            font-size: 13px;
+            color: #ab8b6e;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .tech-badge {
+            background: #ffe4c4;
+            color: #c9742c;
+            padding: 2px 10px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .customer-type-badge {
+            background: #FFE0B2;
+            color: #E65100;
+            padding: 2px 10px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #e0b0b0;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            color: #d8734c;
+        }
+
+        .empty-day {
+            color: #cbb295;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        /* 添加按钮 */
+        .add-btn {
+            width: 100%;
+            margin-top: 16px;
+            background: #FFB347;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 14px;
+            border-radius: 28px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 6px 16px rgba(255, 179, 71, 0.35);
+        }
+
+        .add-btn:hover {
+            background: #ffa31a;
+        }
+
+        /* 添加表单 */
+        .add-form {
+            background: #fff9f0;
+            border-radius: 24px;
+            padding: 18px;
+            margin: 16px 0 0;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            border: 1px solid #ffe0b5;
+        }
+
+        .add-form.active {
+            display: flex;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #b78b60;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 14px;
+            border: 1.5px solid #ffdbb5;
+            border-radius: 18px;
+            font-size: 14px;
+            background: white;
+            outline: none;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .form-actions button {
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background: #ffe9d4;
+            color: #b3773b;
+        }
+
+        .save-btn {
+            background: #FFB347;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">💅</div>
+            <div>
+                <div class="shop-name">lisha日式美甲</div>
+                <div class="subtitle">预约日历</div>
+            </div>
+        </div>
+
+        <!-- 日历区域 -->
+        <div class="calendar-header">
+            <span class="month-title" id="monthTitle">2025年4月</span>
+            <div class="nav-buttons">
+                <button id="prevMonthBtn">◀</button>
+                <button id="nextMonthBtn">▶</button>
+            </div>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid">
+            <!-- 动态生成 -->
+        </div>
+
+        <!-- 点击日期显示详情 -->
+        <div class="day-detail" id="dayDetail">
+            <h3 id="detailDateTitle">📅 2025-04-23</h3>
+            <div id="detailBookingsList"></div>
+        </div>
+
+        <!-- 添加按钮 -->
+        <button class="add-btn" id="showAddFormBtn">+ 添加新预约</button>
+
+        <!-- 添加表单 -->
+        <div class="add-form" id="addForm">
+            <div class="form-group">
+                <label>顾客姓名</label>
+                <input type="text" id="customerName" placeholder="例如：王小姐">
+            </div>
+            <div class="form-group">
+                <label>顾客类型</label>
+                <select id="customerType">
+                    <option value="新客">🆕 新客</option>
+                    <option value="老客">⭐ 老客</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>服务项目</label>
+                <input type="text" id="service" placeholder="例如：纯色美甲 / 法式">
+            </div>
+            <div class="form-group">
+                <label>预约日期</label>
+                <input type="date" id="bookingDate">
+            </div>
+            <div class="form-group">
+                <label>预约时间</label>
+                <input type="time" id="bookingTime" value="10:00">
+            </div>
+            <div class="form-group">
+                <label>美甲师</label>
+                <select id="techAssign">
+                    <option value="Lisha">Lisha</option>
+                    <option value="果果">果果</option>
+                    <option value="航航">航航</option>
+                    <option value="苗苗">苗苗</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button class="cancel-btn" id="cancelAddBtn">取消</button>
+                <button class="save-btn" id="saveBookingBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const STORAGE_KEY = 'nail_bookings_calendar_v3';
+            
+            let currentYear, currentMonth;
+            const today = new Date();
+            let selectedDate = null;
+
+            function loadBookings() {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                return stored ? JSON.parse(stored) : [];
+            }
+
+            function saveBookings(bookings) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
+            }
+
+            function getBookingsForDate(dateStr) {
+                const all = loadBookings();
+                return all
+                    .filter(b => b.date === dateStr)
+                    .sort((a, b) => a.time.localeCompare(b.time));
+            }
+
+            function hasBookingOnDate(dateStr) {
+                return getBookingsForDate(dateStr).length > 0;
+            }
+
+            function initDate() {
+                currentYear = today.getFullYear();
+                currentMonth = today.getMonth() + 1;
+            }
+
+            function escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return String(text).replace(/[&<>"']/g, m => map[m]);
+            }
+
+            function formatDate(year, month, day) {
+                const date = new Date(year, month - 1, day);
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+
+            function renderCalendar() {
+                const grid = document.getElementById('calendarGrid');
+                const monthTitle = document.getElementById('monthTitle');
+                
+                monthTitle.textContent = `${currentYear}年${currentMonth}月`;
+
+                const firstDay = new Date(currentYear, currentMonth - 1, 1);
+                const lastDay = new Date(currentYear, currentMonth, 0);
+                const daysInMonth = lastDay.getDate();
+                const startDayOfWeek = firstDay.getDay();
+
+                let cells = [];
+                const headers = ['日', '一', '二', '三', '四', '五', '六'];
+                headers.forEach(h => cells.push(`<div class="day-header">${h}</div>`));
+
+                const prevMonthLastDay = new Date(currentYear, currentMonth - 1, 0).getDate();
+                for (let i = startDayOfWeek - 1; i >= 0; i--) {
+                    const day = prevMonthLastDay - i;
+                    const dateStr = formatDate(currentYear, currentMonth - 1, day);
+                    cells.push(`<div class="day-cell other-month" data-date="${dateStr}">
+                        <span class="day-number">${day}</span>
+                    </div>`);
+                }
+
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateStr = formatDate(currentYear, currentMonth, d);
+                    const isToday = (currentYear === today.getFullYear() && 
+                                    currentMonth === today.getMonth() + 1 && 
+                                    d === today.getDate());
+                    const isSelected = (selectedDate === dateStr);
+                    const hasBooking = hasBookingOnDate(dateStr);
+                    
+                    let classNames = 'day-cell';
+                    if (isToday) classNames += ' today';
+                    if (isSelected) classNames += ' selected';
+
+                    cells.push(`<div class="${classNames}" data-date="${dateStr}">
+                        <span class="day-number">${d}</span>
+                        ${hasBooking ? '<div class="dot"></div>' : ''}
+                    </div>`);
+                }
+
+                const totalCells = cells.length;
+                const remaining = 7 - (totalCells % 7);
+                if (remaining < 7) {
+                    for (let d = 1; d <= remaining; d++) {
+                        const dateStr = formatDate(currentYear, currentMonth + 1, d);
+                        cells.push(`<div class="day-cell other-month" data-date="${dateStr}">
+                            <span class="day-number">${d}</span>
+                        </div>`);
+                    }
+                }
+
+                grid.innerHTML = cells.join('');
+
+                document.querySelectorAll('.day-cell:not(.other-month)').forEach(cell => {
+                    cell.addEventListener('click', function() {
+                        const date = this.dataset.date;
+                        if (selectedDate === date) {
+                            selectedDate = null;
+                        } else {
+                            selectedDate = date;
+                        }
+                        renderCalendar();
+                        renderDayDetail();
+                    });
+                });
+            }
+
+            function renderDayDetail() {
+                const detailEl = document.getElementById('dayDetail');
+                const titleEl = document.getElementById('detailDateTitle');
+                const listEl = document.getElementById('detailBookingsList');
+
+                if (!selectedDate) {
+                    detailEl.classList.remove('active');
+                    return;
+                }
+
+                detailEl.classList.add('active');
+                titleEl.textContent = `📅 ${selectedDate}`;
+
+                const bookings = getBookingsForDate(selectedDate);
+                if (bookings.length === 0) {
+                    listEl.innerHTML = '<div class="empty-day">✨ 这天暂无预约</div>';
+                } else {
+                    listEl.innerHTML = bookings.map(b => `
+                        <div class="booking-item">
+                            <div class="booking-info-detail">
+                                <span class="customer-name">${escapeHtml(b.customer)}</span>
+                                <div class="booking-meta">
+                                    <span>⏰ ${b.time}</span>
+                                    <span>💅 ${escapeHtml(b.service)}</span>
+                                    <span class="tech-badge">👩‍🎨 ${escapeHtml(b.tech)}</span>
+                                    <span class="customer-type-badge">${b.customerType === '老客' ? '⭐ 老客' : '🆕 新客'}</span>
+                                </div>
+                            </div>
+                            <button class="delete-btn" data-id="${b.id}">🗑️</button>
+                        </div>
+                    `).join('');
+
+                    listEl.querySelectorAll('.delete-btn').forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const id = this.dataset.id;
+                            if (confirm('确定删除这个预约吗？')) {
+                                deleteBookingById(id);
+                            }
+                        });
+                    });
+                }
+            }
+
+            function deleteBookingById(id) {
+                let bookings = loadBookings();
+                bookings = bookings.filter(b => b.id !== id);
+                saveBookings(bookings);
+                renderCalendar();
+                renderDayDetail();
+            }
+
+            function addBooking(booking) {
+                const bookings = loadBookings();
+                booking.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+                bookings.push(booking);
+                saveBookings(bookings);
+                if (booking.date.startsWith(`${currentYear}-${String(currentMonth).padStart(2, '0')}`)) {
+                    renderCalendar();
+                }
+                selectedDate = booking.date;
+                const [y, m] = booking.date.split('-').map(Number);
+                if (y !== currentYear || m !== currentMonth) {
+                    currentYear = y;
+                    currentMonth = m;
+                    renderCalendar();
+                } else {
+                    renderCalendar();
+                }
+                renderDayDetail();
+            }
+
+            function setupAddForm() {
+                const form = document.getElementById('addForm');
+                const showBtn = document.getElementById('showAddFormBtn');
+                const cancelBtn = document.getElementById('cancelAddBtn');
+                const saveBtn = document.getElementById('saveBookingBtn');
+
+                showBtn.addEventListener('click', () => {
+                    form.classList.add('active');
+                    showBtn.style.display = 'none';
+                });
+
+                cancelBtn.addEventListener('click', () => {
+                    form.classList.remove('active');
+                    showBtn.style.display = 'block';
+                    document.getElementById('customerName').value = '';
+                    document.getElementById('service').value = '';
+                });
+
+                saveBtn.addEventListener('click', () => {
+                    const customer = document.getElementById('customerName').value.trim();
+                    const customerType = document.getElementById('customerType').value;
+                    const service = document.getElementById('service').value.trim();
+                    const date = document.getElementById('bookingDate').value;
+                    const time = document.getElementById('bookingTime').value;
+                    const tech = document.getElementById('techAssign').value;
+
+                    if (!customer || !service || !date || !time) {
+                        alert('请填写完整信息！');
+                        return;
+                    }
+
+                    addBooking({ customer, customerType, service, date, time, tech });
+                    form.classList.remove('active');
+                    showBtn.style.display = 'block';
+                    document.getElementById('customerName').value = '';
+                    document.getElementById('service').value = '';
+                });
+            }
+
+            function setupMonthNavigation() {
+                document.getElementById('prevMonthBtn').addEventListener('click', () => {
+                    if (currentMonth === 1) {
+                        currentMonth = 12;
+                        currentYear--;
+                    } else {
+                        currentMonth--;
+                    }
+                    selectedDate = null;
+                    renderCalendar();
+                    renderDayDetail();
+                });
+
+                document.getElementById('nextMonthBtn').addEventListener('click', () => {
+                    if (currentMonth === 12) {
+                        currentMonth = 1;
+                        currentYear++;
+                    } else {
+                        currentMonth++;
+                    }
+                    selectedDate = null;
+                    renderCalendar();
+                    renderDayDetail();
+                });
+            }
+
+            function setDefaultDate() {
+                document.getElementById('bookingDate').value = today.toISOString().split('T')[0];
+            }
+
+            function init() {
+                initDate();
+                setupAddForm();
+                setupMonthNavigation();
+                setDefaultDate();
+                renderCalendar();
+                renderDayDetail();
+            }
+
+            init();
+        })();
+    </script>
+</body>
+</html>
